@@ -81,10 +81,11 @@ export default function ChatDrawer({
             {/* Quick prompts */}
             <div className="mt-5 space-y-2 text-left">
               {[
-                `Why did ${selectedWorkflow?.name || 'Customer Data Sync'} fail?`,
-                "Explain the schema drift root cause and patch.",
-                "Give me a health check summary of all workflows.",
-                "How does HealFlow validate data after retry?"
+                "💡 What is self-healing automation in plain English?",
+                "🧩 What is schema drift and how does HealFlow fix it?",
+                `🔍 Why did ${selectedWorkflow?.name || 'Customer Data Sync'} fail?`,
+                "⚡ What causes HTTP 429 rate limit errors?",
+                "🛡️ Give me a fleet health summary of all workflows."
               ].map((suggestion, idx) => (
                 <button
                   key={idx}

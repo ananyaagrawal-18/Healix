@@ -1,5 +1,19 @@
 import React, { useState } from 'react';
-import { Search, Wrench, FileText, ShieldCheck, Paperclip, ArrowUp, ChevronDown, Check } from 'lucide-react';
+import { 
+  Search, 
+  Wrench, 
+  FileText, 
+  ShieldCheck, 
+  Paperclip, 
+  ArrowUp, 
+  ChevronDown, 
+  ChevronUp,
+  Check,
+  HelpCircle,
+  Sparkles,
+  Zap,
+  Info
+} from 'lucide-react';
 
 export default function HeroSection({
   workflows,
@@ -11,6 +25,7 @@ export default function HeroSection({
 }) {
   const [query, setQuery] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showConceptGuide, setShowConceptGuide] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -23,17 +38,99 @@ export default function HeroSection({
     onTriggerAction(actionType);
   };
 
+  const quickQuestions = [
+    { label: "💡 What is Self-Healing?", prompt: "What is self-healing automation in plain English?" },
+    { label: "🧩 What is Schema Drift?", prompt: "What is schema drift and how does HealFlow fix it?" },
+    { label: "⚡ Why do APIs fail (429)?", prompt: "What causes HTTP 429 rate limit errors and how are they healed?" },
+    { label: "🔍 Investigate Failure", prompt: `Investigate current failure in ${selectedWorkflow?.name || 'Customer Data Sync'}` },
+    { label: "🛠️ How does HealFlow repair?", prompt: "How does HealFlow generate patches and validate recovery?" }
+  ];
+
   return (
     <section className="pt-8 pb-10 px-4 sm:px-8 max-w-4xl mx-auto">
       {/* Hero Headline */}
-      <div className="mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-          What can I help you fix today?
-        </h2>
-        <p className="text-slate-500 text-sm sm:text-base mt-1.5 font-normal">
-          I monitor your workflows, investigate failures, and help restore them safely.
-        </p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            What can I help you fix today?
+          </h2>
+          <p className="text-slate-500 text-sm sm:text-base mt-1.5 font-normal">
+            I monitor your workflows, investigate failures, and help restore them safely.
+          </p>
+        </div>
+
+        {/* Concept Explainer Toggle Button */}
+        <button
+          type="button"
+          onClick={() => setShowConceptGuide(!showConceptGuide)}
+          className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 px-3 py-1.5 rounded-xl transition-all shrink-0 self-start sm:self-auto"
+        >
+          <HelpCircle className="w-3.5 h-3.5 text-emerald-600" />
+          <span>{showConceptGuide ? "Hide Concept Guide" : "💡 What is Self-Healing?"}</span>
+        </button>
       </div>
+
+      {/* Interactive Concept Explainer Card (Expandable) */}
+      {showConceptGuide && (
+        <div className="mb-6 p-5 rounded-2xl bg-gradient-to-br from-emerald-50/90 to-teal-50/50 border border-emerald-200/80 text-xs text-slate-700 shadow-xs animate-in fade-in duration-200">
+          <div className="flex items-center justify-between pb-3 border-b border-emerald-200/60 mb-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-600" />
+              <h4 className="font-bold text-slate-900 text-sm">
+                Understanding Self-Healing Automation in 30 Seconds
+              </h4>
+            </div>
+            <button 
+              onClick={() => setShowConceptGuide(false)}
+              className="text-slate-400 hover:text-slate-600"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            <div className="bg-white/80 p-3.5 rounded-xl border border-emerald-100 shadow-2xs">
+              <div className="font-bold text-emerald-900 text-xs mb-1 flex items-center gap-1.5">
+                <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-[10px]">1</span>
+                What is an Automated Workflow?
+              </div>
+              <p className="text-slate-600 text-[11px] leading-relaxed">
+                Background software pipelines that transfer, validate, and synchronize data automatically (e.g. syncing customer signups to CRM, processing Stripe payments).
+              </p>
+            </div>
+
+            <div className="bg-white/80 p-3.5 rounded-xl border border-rose-100 shadow-2xs">
+              <div className="font-bold text-rose-900 text-xs mb-1 flex items-center gap-1.5">
+                <span className="w-4 h-4 rounded-full bg-rose-100 text-rose-800 flex items-center justify-center text-[10px]">2</span>
+                Why Do They Fail?
+              </div>
+              <p className="text-slate-600 text-[11px] leading-relaxed">
+                External APIs rename fields (<strong>schema drift</strong>), traffic surges trigger <strong>HTTP 429 rate limits</strong>, or locks cause <strong>deadlocks</strong>. Normally, an engineer must fix this manually.
+              </p>
+            </div>
+
+            <div className="bg-white/80 p-3.5 rounded-xl border border-teal-100 shadow-2xs">
+              <div className="font-bold text-teal-900 text-xs mb-1 flex items-center gap-1.5">
+                <span className="w-4 h-4 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center text-[10px]">3</span>
+                What is Self-Healing?
+              </div>
+              <p className="text-slate-600 text-[11px] leading-relaxed">
+                HealFlow acts like an autonomous doctor: it <strong>detects the error</strong>, <strong>diagnoses the root cause</strong>, <strong>generates a repair patch</strong>, <strong>retries the job</strong>, and <strong>validates 100% data recovery</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-3.5 pt-2.5 border-t border-emerald-200/60 flex flex-wrap items-center justify-between gap-2 text-[11px] text-emerald-900">
+            <span>💡 <strong>Quick Demo:</strong> Try asking <em>"What is self-healing?"</em> below or click <strong>"Inject Test Failure"</strong> to see it live!</span>
+            <button
+              onClick={() => onSendMessage("What is self-healing automation in plain English?", selectedWorkflow?.id)}
+              className="text-emerald-700 font-semibold underline hover:text-emerald-950"
+            >
+              Ask HealFlow to explain →
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 4 Primary Action Cards Grid (Exact match to screenshot) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 mb-6">
@@ -122,7 +219,7 @@ export default function HeroSection({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ask HealFlow anything about your workflows..."
+            placeholder="Ask HealFlow anything (e.g. 'What is self-healing?' or 'Why did Customer Data Sync fail?')..."
             className="w-full text-slate-800 placeholder-slate-400 text-sm sm:text-base outline-none bg-transparent mb-3.5 font-normal"
           />
 
@@ -180,6 +277,21 @@ export default function HeroSection({
               <ArrowUp className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
+        </div>
+
+        {/* Quick Suggestion Chips */}
+        <div className="flex items-center gap-1.5 flex-wrap mt-2.5">
+          <span className="text-[11px] font-semibold text-slate-400 mr-1">Ask:</span>
+          {quickQuestions.map((q, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => onSendMessage(q.prompt, selectedWorkflow?.id)}
+              className="text-[11px] font-medium text-slate-600 bg-white hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 border border-slate-200 px-2.5 py-1 rounded-full transition-all"
+            >
+              {q.label}
+            </button>
+          ))}
         </div>
 
         {/* Footnote statement (exact match to screenshot) */}

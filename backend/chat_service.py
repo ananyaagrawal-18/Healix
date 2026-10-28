@@ -45,21 +45,27 @@ def handle_chat_message(message: str, workflow_id: Optional[str] = None, history
         return _chat_deterministic(message, target_wf, system_context)
 
 def _chat_with_gemini(client, message: str, target_wf, system_context: dict, history: Optional[List[Dict[str, str]]]) -> Dict[str, str]:
-    prompt = f"""You are HealFlow AI, an intelligent, senior workflow automation engineer and incident responder.
-You speak clearly, professionally, and concisely.
+    prompt = f"""You are HealFlow AI, an intelligent, empathetic, senior workflow automation engineer and reliability expert.
+You excel at explaining complex technical concepts in plain, clear, friendly English to both non-technical users and engineers.
 
-Current System Context:
+You can answer ANY question:
+1. General questions: "What is self-healing?", "What is a workflow?", "Why do APIs fail?", "What is schema drift?", "How does automated recovery work?", general programming, or DevOps questions.
+2. System questions: Questions about the currently monitored workflows, active failures, root cause diagnoses, logs, and self-healing patches.
+3. Conversational greetings and guidance.
+
+Current Monitored Workflows & Incidents:
 {json.dumps(system_context, indent=2)}
 
-Target Workflow Selected by User:
-{json.dumps(target_wf.dict(), indent=2) if target_wf else "None specifically selected"}
+Currently Selected Workflow:
+{json.dumps(target_wf.dict(), indent=2) if target_wf else "None selected"}
 
-User Question/Prompt:
+User Message:
 {message}
 
-Answer the user directly and helpfully. If they ask to investigate, explain the root cause and how HealFlow's self-healing loop resolves it.
-Highlight that risky changes require approval while standard healing can be auto-piloted.
-Keep the answer formatted nicely with markdown bullet points and code blocks if appropriate.
+Instructions:
+- If the user asks a general question (like "what is healing?", "what do you do?", "how does this work?"), provide a clear, intuitive answer with simple analogies (e.g., comparing passive smoke alarms vs. automated sprinkler systems, or human immune healing).
+- Explain how HealFlow's closed loop (Failure -> Detection -> Diagnosis -> Repair -> Retry -> Validation) solves it.
+- Format nicely with markdown headings, bullet points, and code snippets if helpful.
 """
     response = client.models.generate_content(
         model="gemini-2.5-flash",
@@ -72,39 +78,134 @@ Keep the answer formatted nicely with markdown bullet points and code blocks if 
     }
 
 def _chat_deterministic(message: str, target_wf, system_context: dict) -> Dict[str, str]:
-    msg = message.lower()
+    msg = message.lower().strip()
     
-    if "investigate" in msg or "error" in msg or "fail" in msg or "root cause" in msg:
+    # 1. Concept of "What is Healing?" / "What is Self-Healing?"
+    if any(q in msg for q in ["what is healing", "what is self healing", "what is self-healing", "what does healing mean", "explain healing", "meaning of healing", "how does healing work"]):
+        reply = """### 💡 What is "Self-Healing" in Software Automation?
+
+Think of the difference between a **Smoke Alarm** and a **Fire Sprinkler System**:
+
+* **Traditional Monitoring (Smoke Alarm):** When a workflow breaks, it screams (sends a Slack ping or pager alert at 3 AM). A human engineer has to wake up, read logs, find the bug, write code, deploy a fix, and rerun the job.
+* **Self-Healing Automation (Sprinkler System):** When a workflow breaks, the system **automatically diagnoses the issue, applies a safe corrective repair, retries the job, and verifies that no data was lost.**
+
+---
+
+### The 6-Stage Healing Feedback Loop:
+
+1. **Failure Occurs:** An API changes, a server times out, or a rate limit is exceeded.
+2. **Error Detection:** HealFlow's interceptor captures the exact exception, HTTP status code, and payload.
+3. **Root Cause Diagnosis:** AI or rule patterns pinpoint *why* it failed (e.g., *"Upstream partner renamed `email_address` to `email`"*).
+4. **Repair Generation:** Generates a targeted patch (e.g., dynamic schema field mapper or exponential backoff).
+5. **Safe Retry:** Re-runs the failed workflow with the active patch applied.
+6. **Validation:** Audits the result (e.g., *"250 of 250 records safely stored, 0 data loss"*).
+
+> 💡 **Try it right now:** Click **"Inject Test Failure"** on the dashboard to trigger an error, then click **"Diagnose & Self-Heal"** to watch the healing loop recover it in real time!"""
+
+    # 2. General: "What is a workflow?" / "What is this app?"
+    elif any(q in msg for q in ["what is a workflow", "what is workflow", "explain workflow"]):
+        reply = """### 🔄 What is an Automated Workflow?
+
+An **automated workflow** (or pipeline) is a series of digital steps that software performs automatically on a schedule or event, without humans needing to click buttons manually.
+
+#### Real-World Examples:
+* **Customer Data Sync:** Every 5 minutes, customer signups from your mobile app are fetched, cleaned, and updated in your Salesforce CRM.
+* **Payment Webhook Gateway:** Whenever a customer pays on Stripe, a webhook fires, validates the cryptographic signature, checks rate limits, and records the settlement.
+* **Order Dispatcher:** Takes placed orders, validates shipping addresses, computes postal rates, and notifies warehouse fulfillment.
+
+When any step in these pipelines breaks, business stops. **HealFlow AI acts as a 24/7 reliability engineer** to keep them running smoothly."""
+
+    # 3. General: "What is schema drift?"
+    elif any(q in msg for q in ["schema drift", "what is schema", "field rename"]):
+        reply = """### 🧩 What is "Schema Drift"?
+
+**Schema drift** happens when an external API or database changes its data format without warning you in advance.
+
+#### Concrete Example:
+* Yesterday, the upstream partner sent customer records as:
+  ```json
+  { "id": 101, "email_address": "sarah@acme.com" }
+  ```
+* Today, they upgraded their API to v2.4 and sent:
+  ```json
+  { "id": 101, "email": "sarah@acme.com" }
+  ```
+* **The Failure:** Your workflow expects `email_address`. Because the key is missing, it crashes with a `SchemaValidationError`.
+* **How HealFlow Heals It:** HealFlow detects that `email_address` is missing but `email` is present, synthesizes a **Dynamic Field Alias Patch**, maps the field, and retries the sync without dropping any data."""
+
+    # 4. General: "What is rate limiting / HTTP 429?"
+    elif any(q in msg for q in ["rate limit", "429", "too many requests", "throttle"]):
+        reply = """### ⚡ What is Rate Limiting (HTTP 429)?
+
+Third-party APIs (like Stripe, Twilio, or Google) protect their servers by setting a **quota limit** (e.g., maximum 50 requests per second).
+
+* **The Failure:** During a traffic surge (like Black Friday), your system sends 75 requests/second. The API returns `HTTP 429 Too Many Requests`.
+* **The Traditional Problem:** Naive code keeps retrying immediately, which gets your IP banned or drops transactions.
+* **How HealFlow Heals It:** HealFlow automatically engages **Adaptive Token Throttling** (caps throughput to 35 req/s) and **Exponential Backoff with Jitter**, smoothly draining the queue without errors."""
+
+    # 5. General: "What is MTTR?"
+    elif any(q in msg for q in ["mttr", "mean time to recovery", "mean time to resolution"]):
+        reply = """### ⏱️ What is MTTR (Mean Time to Resolution)?
+
+**MTTR** is the average time it takes from when an error occurs until the system is fully healthy and operating again.
+
+* **Industry Average with Human On-Call:** `45 minutes to 3 hours` (wait for alert, wake engineer, check logs, deploy fix).
+* **HealFlow AI Autonomous MTTR:** `45 seconds` (Failure detected in <1s, diagnosed in <3s, patched & validated in <40s)."""
+
+    # 6. Greetings / Intro
+    elif any(q in msg for q in ["hi", "hello", "hey", "who are you", "what can you do", "help"]):
+        reply = """### 👋 Hello! I'm **HealFlow AI**, your Intelligent Workflow Engineer.
+
+I monitor your background automation pipelines, protect them from outages, and autonomously heal them when errors strike.
+
+#### You can ask me general questions like:
+* *"What is self-healing automation?"*
+* *"What is schema drift?"*
+* *"Why do APIs return HTTP 429?"*
+* *"How does error detection work?"*
+
+#### Or manage active pipelines:
+* *"Investigate failure in Customer Data Sync"*
+* *"Explain the proposed patch diff"*
+* *"Give me a fleet health summary"*
+
+Try clicking one of the quick suggestions or ask anything you'd like!"""
+
+    # 7. Investigate failure
+    elif "investigate" in msg or "error" in msg or "fail" in msg or "root cause" in msg:
         wf_name = target_wf.name if target_wf else "Customer Data Sync"
         wf_status = target_wf.status if target_wf else "failing"
         
         reply = f"""### 🔍 Incident Investigation Report: **{wf_name}**
 
-**Current Status:** `{wf_status.upper()}`
+**Current Pipeline Status:** `{wf_status.upper()}`
 
-#### Key Findings:
-1. **Root Cause Identified:** Payload schema drift detected between upstream Partner API (v2.4) and Enterprise CRM schema definition (v2.3).
-2. **Failure Point:** Step 2 (`Validate Payload Schema`). The upstream payload renamed required field `email_address` to `email`.
-3. **Blast Radius:** 250 records quarantined to prevent downstream CRM database pollution.
+#### 1. Error Detection:
+* **Failure Step:** Step 2 (`Validate Payload Schema`)
+* **Exception:** `SchemaValidationError: Field 'email_address' missing in 250 records.`
 
-#### Recommended Action:
-- Engage HealFlow's **Dynamic Schema Aliasing Patch** (`REPAIR-SCH-01`).
-- This adds backward-compatible alias mappings (`email -> email_address`) and enables adaptive payload tolerance.
-- Click **"Fix a workflow"** or use the **"Auto-Heal"** button to execute repair, retry the run, and validate output records."""
+#### 2. Root Cause Analysis:
+* Upstream Partner API updated from `v2.3` to `v2.4`, changing the key name from `email_address` to `email`.
+* 250 incoming records were quarantined to protect the database from corrupt data.
+
+#### 3. Recommended Self-Healing Action:
+* Engage HealFlow's **Dynamic Schema Aliasing Patch** (`REPAIR-SCH-01`).
+* Click **"Fix a workflow"** or **"Diagnose & Self-Heal"** to review the unified diff and recover the pipeline!"""
         
+    # 8. Fix / Repair / Heal
     elif "fix" in msg or "heal" in msg or "repair" in msg:
-        reply = """### 🛠️ HealFlow Self-Healing Action Engine
+        reply = """### 🛠️ How HealFlow Repairs & Validates
 
-HealFlow executes an automated 6-stage closed loop:
-1. **Failure Ingestion:** Real-time log capture & exception parsing.
-2. **Root Cause Isolation:** Differentiating schema drift, rate-limits, deadlocks, and bad data.
-3. **Patch Generation:** Generating exact config diffs or transformer rules.
-4. **Human-in-the-Loop Safeguard:** Flagging schema/breaking edits for 1-click human approval.
-5. **Safe Retry:** Executing idempotent replay with exponential backoff.
-6. **Output Validation:** Confirming 100% record integrity before closing the incident.
+When you trigger Self-Healing:
+1. **Patch Preview:** HealFlow shows a syntax-highlighted **Unified Diff** (what is changing).
+2. **Safe Application:** The configuration is updated with backward-compatible aliases or throttles.
+3. **Idempotent Retry:** The failed step is re-executed with the new configuration.
+4. **Record Validation:** HealFlow audits the output records (100% data integrity check).
+5. **Resolution:** The incident is marked `RESOLVED` and MTTR is logged in the permanent audit trail.
 
-You can click **"Fix a workflow"** on any active failure card to review the proposed patch diff and apply it immediately!"""
+Click **"Diagnose & Self-Heal"** on any failing workflow card to run it!"""
 
+    # 9. Health & Monitoring
     elif "health" in msg or "status" in msg or "monitor" in msg:
         active_count = len(system_context["active_workflows"])
         failing_count = len([w for w in system_context["active_workflows"] if w["status"] == "failing"])
@@ -112,38 +213,30 @@ You can click **"Fix a workflow"** on any active failure card to review the prop
         
         reply = f"""### 🛡️ Fleet Workflow Health Summary
 
-- **Total Monitored Workflows:** `{active_count}`
-- **Healthy:** `{healthy_count}` ✅
-- **Under Investigation / Failing:** `{failing_count}` ⚠️
-- **Average MTTR:** `47 seconds` (Self-healing enabled)
+* **Total Monitored Pipelines:** `{active_count}`
+* **Healthy & Operational:** `{healthy_count}` ✅
+* **Needs Healing / Failing:** `{failing_count}` ⚠️
+* **Average Recovery Time (MTTR):** `45 seconds`
 
-**Active Monitoring Status:**
-- `Customer Data Sync`: Schema drift anomaly detected (Ready to Heal).
-- `Payment Webhook Gateway`: Operational (Rate limit throttle active).
-- `Inventory Ledger Pipeline`: Healthy (Distributed lock lease optimized).
-- `Order Fulfillment Dispatcher`: Operational (100% address validation)."""
+#### Monitored Pipelines:
+* `Customer Data Sync`: Schema drift detected (Ready to heal).
+* `Payment Webhook Gateway`: Operational (Rate limit throttle active).
+* `Inventory Ledger Pipeline`: Operational (Distributed lock lease optimized).
+* `Order Fulfillment Dispatcher`: Operational (100% address validation)."""
 
-    elif "log" in msg or "trace" in msg:
-        reply = """### 📄 Execution Logs Intelligence
-
-HealFlow continuously inspects structured pipeline logs across all stages:
-- **Level filtering:** `INFO`, `WARN`, `ERROR`, `HEAL`
-- **Context Extraction:** JSON payloads, HTTP headers, retry latency, and database lock leases
-- **Anomaly Correlation:** Grouping correlated error cascades into a single root cause incident
-
-Select **"Analyze execution logs"** from the top dashboard to inspect real-time log traces with full syntax highlighting."""
-
+    # 10. Fallback with helpful general direction
     else:
         wf_label = target_wf.name if target_wf else "Customer Data Sync"
-        reply = f"""I am actively monitoring **{wf_label}** and 3 other enterprise automation workflows.
+        reply = f"""I am monitoring **{wf_label}** and 3 other enterprise automation workflows.
 
-Here is what I can do for you right now:
-- 🔍 **Investigate a failure:** Pinpoint why a step broke and inspect stack traces.
-- 🔧 **Fix a workflow:** Review unified diff patches and trigger self-healing retry.
-- 📄 **Analyze execution logs:** Inspect live timestamps, error codes, and payload dumps.
-- 🛡️ **Check workflow health:** View uptime metrics, SLA health scores, and MTTR records.
+Here are some questions you can ask me:
+* 💡 *"What is self-healing in software?"*
+* 🧩 *"What is schema drift and how does HealFlow fix it?"*
+* ⚡ *"What causes HTTP 429 rate limit errors?"*
+* 🔍 *"Why did {wf_label} fail?"*
+* 🛠️ *"How do I approve and apply a healing patch?"*
 
-Try clicking any action card above or ask me: *"Why did Customer Data Sync fail?"*"""
+Feel free to ask any general or technical question!"""
 
     return {
         "reply": reply,
