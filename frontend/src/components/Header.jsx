@@ -8,14 +8,12 @@ export default function Header({
   onRefresh, 
   isRefreshing 
 }) {
-  const isAi = settings?.gemini_api_configured;
-
   return (
-    <header className="w-full bg-white border-b border-slate-200/80 sticky top-0 z-30 px-4 sm:px-8 py-3.5 shadow-sm transition-all">
+    <header className="w-full bg-[#0b101d]/90 backdrop-blur-md border-b border-slate-800/90 sticky top-0 z-30 px-4 sm:px-8 py-3.5 shadow-md transition-all">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Left: Brand Identity (exact match to user UI) */}
+        {/* Left: Brand Identity (Healix) */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/70 flex items-center justify-center text-emerald-600 shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shadow-sm shadow-emerald-950">
             <svg 
               className="w-5 h-5 stroke-[2.2]" 
               viewBox="0 0 24 24" 
@@ -31,33 +29,27 @@ export default function Header({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-tight">HealFlow AI</h1>
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
-                MVP
+              <h1 className="text-lg font-bold text-white tracking-tight leading-tight">Healix</h1>
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-800/50">
+                AI ENGINE
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-medium">Intelligent Workflow Engineer</p>
+            <p className="text-xs text-slate-400 font-medium">Intelligent Workflow Engineer</p>
           </div>
         </div>
 
         {/* Right: Status and Controls */}
         <div className="flex items-center gap-2.5 sm:gap-3.5">
-          {/* AI Engine Provider Pill */}
-          <button 
-            onClick={onOpenSettings}
-            className={`hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium border transition-colors ${
-              isAi 
-                ? 'bg-purple-50 text-purple-700 border-purple-200/70 hover:bg-purple-100' 
-                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
-            }`}
-            title="Click to configure Gemini API Key"
+          {/* AI Engine Status Pill */}
+          <div 
+            className="hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium border bg-slate-900 border-slate-700/80 text-emerald-400"
           >
-            {isAi ? <Sparkles className="w-3.5 h-3.5 text-purple-600" /> : <Cpu className="w-3.5 h-3.5 text-slate-600" />}
-            <span>{isAi ? 'Gemini 2.5 AI' : 'Rule-Based Engine'}</span>
-          </button>
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Autonomous Intelligence Active</span>
+          </div>
 
-          {/* Monitoring Active Pill (exact match to user UI) */}
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-semibold shadow-xs">
+          {/* Monitoring Active Pill */}
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 text-xs font-semibold shadow-xs">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -69,17 +61,17 @@ export default function Header({
           <button 
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors border border-slate-800"
             title="Refresh System State"
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-emerald-600' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-emerald-400' : ''}`} />
           </button>
 
           {/* Settings Trigger */}
           <button
             onClick={onOpenSettings}
-            className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
-            title="HealFlow Settings"
+            className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors border border-slate-800"
+            title="Healix System Configuration"
           >
             <Settings className="w-4 h-4" />
           </button>

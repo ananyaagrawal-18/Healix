@@ -21,9 +21,9 @@ from chat_service import handle_chat_message
 from sdk import auto_heal_agent, SAMPLE_SOFTWARE_SNIPPETS
 
 app = FastAPI(
-    title="HealFlow AI - Intelligent Self-Healing Automation API",
+    title="Healix AI - Intelligent Self-Healing Automation API",
     version="1.0.0",
-    description="Backend engine for HealFlow AI intelligent monitoring and automated self-healing."
+    description="Backend engine for Healix AI intelligent monitoring and automated self-healing."
 )
 
 # CORS middleware for frontend communication
@@ -212,29 +212,29 @@ def execute_software_with_heal(req: SdkExecuteRequest = Body(...)):
 @app.get("/api/sdk/integration-docs")
 def get_integration_docs():
     return {
-        "python_decorator": """# 1. Install HealFlow Self-Healing Agent
-# pip install healflow-agent
+        "python_decorator": """# 1. Install Healix Self-Healing Agent
+# pip install Healix-agent
 
-from healflow import auto_heal
+from Healix import auto_heal
 
 # Add @auto_heal to any critical function in your software:
 @auto_heal(strategy="adaptive", max_retries=3, require_approval_on_breaking=True)
 def sync_customer_account(customer_payload):
     # If upstream API changes keys, formats, or rates:
-    # HealFlow AI intercepts the exception, generates a runtime patch,
+    # Healix AI intercepts the exception, generates a runtime patch,
     # and recovers the function automatically!
     email = customer_payload["email_address"]
     return save_to_crm(email)
 """,
         "fastapi_middleware": """# Drop-in Middleware for FastAPI / Flask
 from fastapi import FastAPI
-from healflow.middleware import HealFlowSelfHealingMiddleware
+from Healix.middleware import HealixSelfHealingMiddleware
 
 app = FastAPI()
 
 # Intercepts 4xx/5xx responses and applies dynamic route/schema healing
 app.add_middleware(
-    HealFlowSelfHealingMiddleware,
+    HealixSelfHealingMiddleware,
     auto_heal_429=True,
     auto_heal_schema_drift=True
 )

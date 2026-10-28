@@ -79,7 +79,7 @@ def parse_transaction_date(record):
     }
 }
 
-class HealFlowAutoHealAgent:
+class HealixAutoHealAgent:
     """
     Core AI Self-Healing Engine for Python software.
     Intercepts runtime failures, diagnoses cause, synthesizes dynamic patches,
@@ -137,7 +137,7 @@ class HealFlowAutoHealAgent:
         client = get_gemini_client()
         if client:
             try:
-                prompt = f"""You are HealFlow AI, an automated software self-repair engineer.
+                prompt = f"""You are Healix AI, an automated software self-repair engineer.
 A Python function crashed at runtime. Analyze the function and error to generate an automatic runtime patch.
 
 Function Code:
@@ -180,7 +180,7 @@ Return ONLY valid JSON matching this schema:
 
         if "keyerror" in err_lower or "email_address" in err_lower:
             healed_code = """def process_customer(payload):
-    # [HealFlow AI Auto-Healed]: Adaptive Schema Key Resolver
+    # [Healix AI Auto-Healed]: Adaptive Schema Key Resolver
     customer_id = payload.get("id") or payload.get("customer_id")
     # Resolve email with fallback alias support (email_address <-> email)
     email = payload.get("email_address") or payload.get("email") or "unspecified@domain.com"
@@ -192,7 +192,7 @@ Return ONLY valid JSON matching this schema:
         "email": email,
         "name": name,
         "verified": True,
-        "_healed_by": "HealFlow Adaptive Schema Resolver"
+        "_healed_by": "Healix Adaptive Schema Resolver"
     }"""
             return {
                 "category": "SCHEMA_DRIFT",
@@ -205,7 +205,7 @@ Return ONLY valid JSON matching this schema:
 
         elif "typeerror" in err_lower or "unsupported operand" in err_lower or "str" in err_lower:
             healed_code = """def calculate_final_price(order):
-    # [HealFlow AI Auto-Healed]: Dynamic Type Coercion & Percentage Normalizer
+    # [Healix AI Auto-Healed]: Dynamic Type Coercion & Percentage Normalizer
     price = float(order["price"])
     raw_discount = order["discount"]
     
@@ -223,7 +223,7 @@ Return ONLY valid JSON matching this schema:
         "original_price": price,
         "discount_applied": discount,
         "final_price": round(final_price, 2),
-        "_healed_by": "HealFlow Dynamic Type Coercion"
+        "_healed_by": "Healix Dynamic Type Coercion"
     }"""
             return {
                 "category": "TYPE_MISMATCH",
@@ -238,7 +238,7 @@ Return ONLY valid JSON matching this schema:
             healed_code = """from datetime import datetime
 
 def parse_transaction_date(record):
-    # [HealFlow AI Auto-Healed]: Multi-Format Adaptive Date Parser
+    # [Healix AI Auto-Healed]: Multi-Format Adaptive Date Parser
     raw_date = str(record["timestamp"]).strip()
     
     # Try recognized date patterns automatically
@@ -257,7 +257,7 @@ def parse_transaction_date(record):
         "transaction_id": record["tx_id"],
         "iso_date": parsed.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "epoch": int(parsed.timestamp()),
-        "_healed_by": "HealFlow Multi-Format Date Parser"
+        "_healed_by": "Healix Multi-Format Date Parser"
     }"""
             return {
                 "category": "DATE_FORMAT_ERROR",
@@ -272,7 +272,7 @@ def parse_transaction_date(record):
             healed_code = """import time
 
 def send_sms_notification(user_id, phone, message):
-    # [HealFlow AI Auto-Healed]: Jittered Exponential Backoff Throttling
+    # [Healix AI Auto-Healed]: Jittered Exponential Backoff Throttling
     # Simulates backoff delay and throttle down to safe 35 req/s quota
     time.sleep(0.15) # Wait for downstream token bucket refresh
     
@@ -282,7 +282,7 @@ def send_sms_notification(user_id, phone, message):
         "phone": phone,
         "retry_count": 1,
         "backoff_applied_ms": 150,
-        "_healed_by": "HealFlow Rate Throttling & Jittered Backoff"
+        "_healed_by": "Healix Rate Throttling & Jittered Backoff"
     }"""
             return {
                 "category": "RATE_LIMIT_429",
@@ -303,4 +303,4 @@ def send_sms_notification(user_id, phone, message):
         result = healed_func(input_args)
         return result, healed_code
 
-auto_heal_agent = HealFlowAutoHealAgent()
+auto_heal_agent = HealixAutoHealAgent()

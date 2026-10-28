@@ -281,15 +281,15 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f8fafc]">
+    <div className="min-h-screen flex flex-col bg-[#090d16] text-slate-100">
       {/* Toast Banner */}
       {toast && (
         <div className={`fixed top-4 right-4 z-50 px-4 py-2.5 rounded-xl shadow-lg border text-xs font-semibold flex items-center gap-2 animate-in slide-in-from-top duration-150 ${
           toast.type === 'success' 
-            ? 'bg-emerald-900 text-white border-emerald-700' 
+            ? 'bg-emerald-950 text-emerald-200 border-emerald-700' 
             : toast.type === 'error'
-            ? 'bg-rose-900 text-white border-rose-700'
-            : 'bg-slate-900 text-white border-slate-700'
+            ? 'bg-rose-950 text-rose-200 border-rose-700'
+            : 'bg-slate-800 text-white border-slate-700'
         }`}>
           <span>{toast.message}</span>
         </div>
@@ -318,13 +318,13 @@ export default function App() {
 
         {/* View Mode Switcher */}
         <div className="flex items-center justify-center mb-6">
-          <div className="bg-white border border-slate-200/90 p-1.5 rounded-2xl shadow-xs flex items-center gap-1">
+          <div className="bg-slate-900 border border-slate-800 p-1.5 rounded-2xl shadow-md flex items-center gap-1">
             <button
               onClick={() => setViewMode('pipelines')}
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                 viewMode === 'pipelines'
                   ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
             >
               Enterprise Workflow Pipelines
@@ -334,11 +334,11 @@ export default function App() {
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 viewMode === 'code_studio'
                   ? 'bg-purple-700 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
             >
               <span>⚡ Embed AI in Your Software (Code Repair)</span>
-              <span className="text-[10px] bg-purple-100 text-purple-900 px-1.5 py-0.2 rounded-full font-mono uppercase">
+              <span className="text-[10px] bg-purple-950 text-purple-300 px-1.5 py-0.2 rounded-full font-mono uppercase border border-purple-800">
                 New
               </span>
             </button>
@@ -346,8 +346,8 @@ export default function App() {
               onClick={() => setViewMode('all')}
               className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                 viewMode === 'all'
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                  ? 'bg-slate-800 text-white shadow-xs'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
             >
               View All
@@ -355,7 +355,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* Section 2: Embed HealFlow AI in Your Software (Code Repair Studio) */}
+        {/* Section 2: Embed Healix in Your Software (Code Repair Studio) */}
         {(viewMode === 'code_studio' || viewMode === 'all') && (
           <CodeRepairStudio onShowToast={showToast} />
         )}
@@ -403,18 +403,18 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-6 px-4 text-center text-xs text-slate-500">
+      <footer className="border-t border-slate-800 bg-[#070b13] py-6 px-4 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">HealFlow AI</span>
+            <span className="font-bold text-slate-200">Healix</span>
             <span>— Autonomous Reliability Engineering for Mission-Critical Business Pipelines</span>
           </div>
-          <div className="flex items-center gap-4 text-slate-400">
+          <div className="flex items-center gap-4 text-slate-500">
             <span>Hackathon MVP</span>
             <span>•</span>
-            <span>FastAPI + React + Gemini AI</span>
+            <span>FastAPI + React</span>
             <span>•</span>
-            <span className="text-emerald-600 font-medium">100% Recovery Verified</span>
+            <span className="text-emerald-400 font-medium">100% Recovery Verified</span>
           </div>
         </div>
       </footer>

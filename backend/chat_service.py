@@ -45,7 +45,7 @@ def handle_chat_message(message: str, workflow_id: Optional[str] = None, history
         return _chat_deterministic(message, target_wf, system_context)
 
 def _chat_with_gemini(client, message: str, target_wf, system_context: dict, history: Optional[List[Dict[str, str]]]) -> Dict[str, str]:
-    prompt = f"""You are HealFlow AI, an intelligent, empathetic, senior workflow automation engineer and reliability expert.
+    prompt = f"""You are Healix AI, an intelligent, empathetic, senior workflow automation engineer and reliability expert.
 You excel at explaining complex technical concepts in plain, clear, friendly English to both non-technical users and engineers.
 
 You can answer ANY question:
@@ -64,7 +64,7 @@ User Message:
 
 Instructions:
 - If the user asks a general question (like "what is healing?", "what do you do?", "how does this work?"), provide a clear, intuitive answer with simple analogies (e.g., comparing passive smoke alarms vs. automated sprinkler systems, or human immune healing).
-- Explain how HealFlow's closed loop (Failure -> Detection -> Diagnosis -> Repair -> Retry -> Validation) solves it.
+- Explain how Healix's closed loop (Failure -> Detection -> Diagnosis -> Repair -> Retry -> Validation) solves it.
 - Format nicely with markdown headings, bullet points, and code snippets if helpful.
 """
     response = client.models.generate_content(
@@ -94,7 +94,7 @@ Think of the difference between a **Smoke Alarm** and a **Fire Sprinkler System*
 ### The 6-Stage Healing Feedback Loop:
 
 1. **Failure Occurs:** An API changes, a server times out, or a rate limit is exceeded.
-2. **Error Detection:** HealFlow's interceptor captures the exact exception, HTTP status code, and payload.
+2. **Error Detection:** Healix's interceptor captures the exact exception, HTTP status code, and payload.
 3. **Root Cause Diagnosis:** AI or rule patterns pinpoint *why* it failed (e.g., *"Upstream partner renamed `email_address` to `email`"*).
 4. **Repair Generation:** Generates a targeted patch (e.g., dynamic schema field mapper or exponential backoff).
 5. **Safe Retry:** Re-runs the failed workflow with the active patch applied.
@@ -113,7 +113,7 @@ An **automated workflow** (or pipeline) is a series of digital steps that softwa
 * **Payment Webhook Gateway:** Whenever a customer pays on Stripe, a webhook fires, validates the cryptographic signature, checks rate limits, and records the settlement.
 * **Order Dispatcher:** Takes placed orders, validates shipping addresses, computes postal rates, and notifies warehouse fulfillment.
 
-When any step in these pipelines breaks, business stops. **HealFlow AI acts as a 24/7 reliability engineer** to keep them running smoothly."""
+When any step in these pipelines breaks, business stops. **Healix AI acts as a 24/7 reliability engineer** to keep them running smoothly."""
 
     # 3. General: "What is schema drift?"
     elif any(q in msg for q in ["schema drift", "what is schema", "field rename"]):
@@ -131,7 +131,7 @@ When any step in these pipelines breaks, business stops. **HealFlow AI acts as a
   { "id": 101, "email": "sarah@acme.com" }
   ```
 * **The Failure:** Your workflow expects `email_address`. Because the key is missing, it crashes with a `SchemaValidationError`.
-* **How HealFlow Heals It:** HealFlow detects that `email_address` is missing but `email` is present, synthesizes a **Dynamic Field Alias Patch**, maps the field, and retries the sync without dropping any data."""
+* **How Healix Heals It:** Healix detects that `email_address` is missing but `email` is present, synthesizes a **Dynamic Field Alias Patch**, maps the field, and retries the sync without dropping any data."""
 
     # 4. General: "What is rate limiting / HTTP 429?"
     elif any(q in msg for q in ["rate limit", "429", "too many requests", "throttle"]):
@@ -141,7 +141,7 @@ Third-party APIs (like Stripe, Twilio, or Google) protect their servers by setti
 
 * **The Failure:** During a traffic surge (like Black Friday), your system sends 75 requests/second. The API returns `HTTP 429 Too Many Requests`.
 * **The Traditional Problem:** Naive code keeps retrying immediately, which gets your IP banned or drops transactions.
-* **How HealFlow Heals It:** HealFlow automatically engages **Adaptive Token Throttling** (caps throughput to 35 req/s) and **Exponential Backoff with Jitter**, smoothly draining the queue without errors."""
+* **How Healix Heals It:** Healix automatically engages **Adaptive Token Throttling** (caps throughput to 35 req/s) and **Exponential Backoff with Jitter**, smoothly draining the queue without errors."""
 
     # 5. General: "What is MTTR?"
     elif any(q in msg for q in ["mttr", "mean time to recovery", "mean time to resolution"]):
@@ -150,11 +150,11 @@ Third-party APIs (like Stripe, Twilio, or Google) protect their servers by setti
 **MTTR** is the average time it takes from when an error occurs until the system is fully healthy and operating again.
 
 * **Industry Average with Human On-Call:** `45 minutes to 3 hours` (wait for alert, wake engineer, check logs, deploy fix).
-* **HealFlow AI Autonomous MTTR:** `45 seconds` (Failure detected in <1s, diagnosed in <3s, patched & validated in <40s)."""
+* **Healix AI Autonomous MTTR:** `45 seconds` (Failure detected in <1s, diagnosed in <3s, patched & validated in <40s)."""
 
     # 6. Greetings / Intro
     elif any(q in msg for q in ["hi", "hello", "hey", "who are you", "what can you do", "help"]):
-        reply = """### 👋 Hello! I'm **HealFlow AI**, your Intelligent Workflow Engineer.
+        reply = """### 👋 Hello! I'm **Healix AI**, your Intelligent Workflow Engineer.
 
 I monitor your background automation pipelines, protect them from outages, and autonomously heal them when errors strike.
 
@@ -189,18 +189,18 @@ Try clicking one of the quick suggestions or ask anything you'd like!"""
 * 250 incoming records were quarantined to protect the database from corrupt data.
 
 #### 3. Recommended Self-Healing Action:
-* Engage HealFlow's **Dynamic Schema Aliasing Patch** (`REPAIR-SCH-01`).
+* Engage Healix's **Dynamic Schema Aliasing Patch** (`REPAIR-SCH-01`).
 * Click **"Fix a workflow"** or **"Diagnose & Self-Heal"** to review the unified diff and recover the pipeline!"""
         
     # 8. Fix / Repair / Heal
     elif "fix" in msg or "heal" in msg or "repair" in msg:
-        reply = """### 🛠️ How HealFlow Repairs & Validates
+        reply = """### 🛠️ How Healix Repairs & Validates
 
 When you trigger Self-Healing:
-1. **Patch Preview:** HealFlow shows a syntax-highlighted **Unified Diff** (what is changing).
+1. **Patch Preview:** Healix shows a syntax-highlighted **Unified Diff** (what is changing).
 2. **Safe Application:** The configuration is updated with backward-compatible aliases or throttles.
 3. **Idempotent Retry:** The failed step is re-executed with the new configuration.
-4. **Record Validation:** HealFlow audits the output records (100% data integrity check).
+4. **Record Validation:** Healix audits the output records (100% data integrity check).
 5. **Resolution:** The incident is marked `RESOLVED` and MTTR is logged in the permanent audit trail.
 
 Click **"Diagnose & Self-Heal"** on any failing workflow card to run it!"""
@@ -231,7 +231,7 @@ Click **"Diagnose & Self-Heal"** on any failing workflow card to run it!"""
 
 Here are some questions you can ask me:
 * 💡 *"What is self-healing in software?"*
-* 🧩 *"What is schema drift and how does HealFlow fix it?"*
+* 🧩 *"What is schema drift and how does Healix fix it?"*
 * ⚡ *"What causes HTTP 429 rate limit errors?"*
 * 🔍 *"Why did {wf_label} fail?"*
 * 🛠️ *"How do I approve and apply a healing patch?"*
@@ -241,5 +241,5 @@ Feel free to ask any general or technical question!"""
     return {
         "reply": reply,
         "source": "RULE_BASED_DETERMINISTIC",
-        "model": "HealFlow Intelligent Diagnostic Engine"
+        "model": "Healix Intelligent Diagnostic Engine"
     }
