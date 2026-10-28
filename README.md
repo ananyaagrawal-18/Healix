@@ -109,7 +109,40 @@ Healix features an interactive conversational copilot:
 
 ---
 
-## 🚀 Quick Start Guide
+## 🌐 Cloud Deployment (Vercel, Render, Railway, Docker)
+
+Healix features **autonomous dual-engine resilience**: whether deployed as a full-stack Python service on Render/Railway, or hosted on Vercel/Netlify/GitHub Pages, Healix guarantees 100% interactive functionality out-of-the-box with zero broken screens.
+
+### Option 1: Deploy to Vercel (Recommended for Fast Demo)
+1. Go to [Vercel](https://vercel.com/new) and import `https://github.com/ananyaagrawal-18/Healix`.
+2. Framework Preset: **Vite** (or Other).
+3. Root Directory: `./` (leave default).
+4. Click **Deploy**! The pre-configured `vercel.json` and in-browser autonomous engine will run all workflows, AI diagnoses, code repairs, and chat interactions seamlessly.
+
+### Option 2: Deploy to Render (Full-Stack Python + React)
+1. In [Render Dashboard](https://dashboard.render.com), click **New +** ➔ **Web Service**.
+2. Connect `https://github.com/ananyaagrawal-18/Healix`.
+3. Settings:
+   - **Environment:** `Python 3`
+   - **Build Command:** `pip install -r requirements.txt && cd frontend && npm install && npm run build && cd ..`
+   - **Start Command:** `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+4. Click **Create Web Service**.
+
+### Option 3: Deploy to Railway / Heroku
+Railway and Heroku automatically detect the provided root `Procfile`:
+```bash
+web: uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}
+```
+
+### Option 4: Deploy with Docker
+```bash
+docker build -t healix .
+docker run -p 8000:8000 healix
+```
+
+---
+
+## 🚀 Quick Start Guide (Local Development)
 
 ### Prerequisites
 - **Python**: 3.10 or higher

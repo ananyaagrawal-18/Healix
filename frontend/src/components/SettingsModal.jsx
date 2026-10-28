@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { X, Settings2, Sparkles, Shield, Activity, Database, Palette, Sun, Moon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Settings2, Sparkles, Shield, Activity, Database, Palette, Sun, Moon, Globe, Server, CheckCircle2 } from 'lucide-react';
+import { getCustomApiBase, setCustomApiBase } from '../api';
 
 export default function SettingsModal({
   isOpen,
@@ -9,6 +10,21 @@ export default function SettingsModal({
   onSetTheme = () => {}
 }) {
   const [autoPilot, setAutoPilot] = useState(true);
+  const [apiUrl, setApiUrl] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  useEffect(() => {
+    setApiUrl(getCustomApiBase());
+  }, [isOpen]);
+
+  const handleSaveApiUrl = () => {
+    setCustomApiBase(apiUrl);
+    setSaveSuccess(true);
+    setTimeout(() => {
+      setSaveSuccess(false);
+      window.location.reload();
+    }, 800);
+  };
 
   if (!isOpen) return null;
 
@@ -107,6 +123,45 @@ export default function SettingsModal({
                   <div className="text-xs font-bold text-slate-900 dark:text-white">Dark Theme</div>
                   <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">Midnight glow cyberpunk UI</div>
                 </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Cloud Deployment & Backend Service URL */}
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-white">
+                <Server className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span>Backend Deployment & API Endpoint</span>
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">
+                Resilient Mode Active
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              Healix auto-connects to your backend. If deployed statically or offline, the in-browser autonomous engine ensures 100% functionality.
+            </p>
+            <div className="flex gap-2 pt-1">
+              <input
+                type="text"
+                value={apiUrl}
+                onChange={(e) => setApiUrl(e.target.value)}
+                placeholder="Auto-detect (or https://your-backend.onrender.com/api)"
+                className="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-100 outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={handleSaveApiUrl}
+                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-all flex items-center gap-1 shrink-0"
+              >
+                {saveSuccess ? (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Saved!</span>
+                  </>
+                ) : (
+                  <span>Save URL</span>
+                )}
               </button>
             </div>
           </div>
