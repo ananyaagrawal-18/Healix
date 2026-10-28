@@ -46,6 +46,24 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
   const [viewMode, setViewMode] = useState('pipelines'); // 'pipelines' | 'code_studio' | 'all'
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('healix-theme') || 'dark';
+  });
+
+  // Apply theme to html root
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('healix-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   // Toast notification
   const [toast, setToast] = useState(null);
@@ -281,7 +299,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#090d16] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#f8fafc] dark:bg-[#090d16] text-slate-800 dark:text-slate-100 transition-colors duration-200">
       {/* Toast Banner */}
       {toast && (
         <div className={`fixed top-4 right-4 z-50 px-4 py-2.5 rounded-xl shadow-lg border text-xs font-semibold flex items-center gap-2 animate-in slide-in-from-top duration-150 ${
@@ -295,13 +313,16 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Navigation Bar */}
+      {/* Top Navigation Bar with Light/Dark Theme Switcher */}
       <Header
         health={health}
         settings={settings}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onRefresh={loadAllData}
         isRefreshing={isRefreshing}
+        theme={theme}
+        onSetTheme={setTheme}
+        onToggleTheme={toggleTheme}
       />
 
       {/* Main Container */}
@@ -318,13 +339,13 @@ export default function App() {
 
         {/* View Mode Switcher */}
         <div className="flex items-center justify-center mb-6">
-          <div className="bg-slate-900 border border-slate-800 p-1.5 rounded-2xl shadow-md flex items-center gap-1">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1.5 rounded-2xl shadow-xs dark:shadow-md flex items-center gap-1 transition-colors">
             <button
               onClick={() => setViewMode('pipelines')}
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                 viewMode === 'pipelines'
                   ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               Enterprise Workflow Pipelines
@@ -334,11 +355,11 @@ export default function App() {
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 viewMode === 'code_studio'
                   ? 'bg-purple-700 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <span>⚡ Embed AI in Your Software (Code Repair)</span>
-              <span className="text-[10px] bg-purple-950 text-purple-300 px-1.5 py-0.2 rounded-full font-mono uppercase border border-purple-800">
+              <span className="text-[10px] bg-purple-100 dark:bg-purple-950 text-purple-900 dark:text-purple-300 px-1.5 py-0.2 rounded-full font-mono uppercase border border-purple-300 dark:border-purple-800">
                 New
               </span>
             </button>
@@ -346,8 +367,8 @@ export default function App() {
               onClick={() => setViewMode('all')}
               className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                 viewMode === 'all'
-                  ? 'bg-slate-800 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-slate-900 dark:bg-slate-800 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               View All
@@ -403,18 +424,18 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-[#070b13] py-6 px-4 text-center text-xs text-slate-500">
+      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#070b13] py-6 px-4 text-center text-xs text-slate-500 transition-colors duration-200">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-200">Healix</span>
+            <span className="font-bold text-slate-800 dark:text-slate-200">Healix</span>
             <span>— Autonomous Reliability Engineering for Mission-Critical Business Pipelines</span>
           </div>
-          <div className="flex items-center gap-4 text-slate-500">
+          <div className="flex items-center gap-4 text-slate-400 dark:text-slate-500">
             <span>Hackathon MVP</span>
             <span>•</span>
             <span>FastAPI + React</span>
             <span>•</span>
-            <span className="text-emerald-400 font-medium">100% Recovery Verified</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-medium">100% Recovery Verified</span>
           </div>
         </div>
       </footer>
@@ -442,6 +463,8 @@ export default function App() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         settings={settings}
+        theme={theme}
+        onSetTheme={setTheme}
         onSaveKey={handleSaveApiKey}
       />
     </div>
