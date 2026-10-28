@@ -85,3 +85,26 @@ export async function sendChatMessage(message, workflowId = null, history = []) 
   if (!res.ok) throw new Error('Failed to send chat message');
   return res.json();
 }
+
+export async function fetchSdkSamples() {
+  const res = await fetch(`${API_BASE}/sdk/samples`);
+  if (!res.ok) throw new Error('Failed to fetch SDK samples');
+  return res.json();
+}
+
+export async function executeSdkCode(code, funcName, inputArgs) {
+  const res = await fetch(`${API_BASE}/sdk/execute`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, func_name: funcName, input_args: inputArgs })
+  });
+  if (!res.ok) throw new Error('Failed to execute SDK code');
+  return res.json();
+}
+
+export async function fetchIntegrationDocs() {
+  const res = await fetch(`${API_BASE}/sdk/integration-docs`);
+  if (!res.ok) throw new Error('Failed to fetch integration docs');
+  return res.json();
+}
+

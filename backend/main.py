@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from typing import Optional, Dict, Any, List
+from pydantic import BaseModel
 from dotenv import load_dotenv
 
 # Load .env file
@@ -17,6 +18,7 @@ from store import store
 from engine import run_workflow_simulation, apply_healing_action
 from diagnostics import diagnose_run, get_gemini_client
 from chat_service import handle_chat_message
+from sdk import auto_heal_agent, SAMPLE_SOFTWARE_SNIPPETS
 
 app = FastAPI(
     title="HealFlow AI - Intelligent Self-Healing Automation API",
@@ -185,6 +187,59 @@ def chat(req: ChatRequest = Body(...)):
         history=req.history
     )
     return result
+
+@app.get("/api/sdk/samples")
+def get_sdk_samples():
+    return SAMPLE_SOFTWARE_SNIPPETS
+
+class SdkExecuteRequest(BaseModel):
+    code: str
+    func_name: str
+    input_args: Dict[str, Any]
+
+@app.post("/api/sdk/execute")
+def execute_software_with_heal(req: SdkExecuteRequest = Body(...)):
+    try:
+        result = auto_heal_agent.execute_and_heal(
+            func_code=req.code,
+            func_name=req.func_name,
+            input_args=req.input_args
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"SDK execution error: {str(e)}")
+
+@app.get("/api/sdk/integration-docs")
+def get_integration_docs():
+    return {
+        "python_decorator": """# 1. Install HealFlow Self-Healing Agent
+# pip install healflow-agent
+
+from healflow import auto_heal
+
+# Add @auto_heal to any critical function in your software:
+@auto_heal(strategy="adaptive", max_retries=3, require_approval_on_breaking=True)
+def sync_customer_account(customer_payload):
+    # If upstream API changes keys, formats, or rates:
+    # HealFlow AI intercepts the exception, generates a runtime patch,
+    # and recovers the function automatically!
+    email = customer_payload["email_address"]
+    return save_to_crm(email)
+""",
+        "fastapi_middleware": """# Drop-in Middleware for FastAPI / Flask
+from fastapi import FastAPI
+from healflow.middleware import HealFlowSelfHealingMiddleware
+
+app = FastAPI()
+
+# Intercepts 4xx/5xx responses and applies dynamic route/schema healing
+app.add_middleware(
+    HealFlowSelfHealingMiddleware,
+    auto_heal_429=True,
+    auto_heal_schema_drift=True
+)
+"""
+    }
 
 # Serve Frontend SPA static assets if built
 frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))

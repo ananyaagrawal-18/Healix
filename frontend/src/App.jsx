@@ -8,6 +8,7 @@ import IncidentHistory from './components/IncidentHistory';
 import DiagnosisPatchModal from './components/DiagnosisPatchModal';
 import ChatDrawer from './components/ChatDrawer';
 import SettingsModal from './components/SettingsModal';
+import CodeRepairStudio from './components/CodeRepairStudio';
 
 import {
   fetchHealth,
@@ -44,6 +45,7 @@ export default function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
+  const [viewMode, setViewMode] = useState('pipelines'); // 'pipelines' | 'code_studio' | 'all'
 
   // Toast notification
   const [toast, setToast] = useState(null);
@@ -314,45 +316,90 @@ export default function App() {
           onScrollToDetails={() => pipelineRef.current?.scrollIntoView({ behavior: 'smooth' })}
         />
 
-        {/* Section 2: Self-Healing Feedback Loop Visualizer */}
-        <div ref={pipelineRef} className="pt-2">
-          <SelfHealingLoop
-            workflow={selectedWorkflow}
-            activeIncident={activeIncident}
-            latestDiagnosis={latestDiagnosis}
-            isHealing={isHealing}
-            isSimulating={isSimulating}
-            onAutoHeal={() => handleAutoHeal()}
-            onSimulateFailure={handleSimulateFailure}
-            onResetWorkflow={handleResetWorkflow}
-            onOpenDiagnosis={() => setIsDiagnosisOpen(true)}
-          />
+        {/* View Mode Switcher */}
+        <div className="flex items-center justify-center mb-6">
+          <div className="bg-white border border-slate-200/90 p-1.5 rounded-2xl shadow-xs flex items-center gap-1">
+            <button
+              onClick={() => setViewMode('pipelines')}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                viewMode === 'pipelines'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              Enterprise Workflow Pipelines
+            </button>
+            <button
+              onClick={() => setViewMode('code_studio')}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                viewMode === 'code_studio'
+                  ? 'bg-purple-700 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              <span>⚡ Embed AI in Your Software (Code Repair)</span>
+              <span className="text-[10px] bg-purple-100 text-purple-900 px-1.5 py-0.2 rounded-full font-mono uppercase">
+                New
+              </span>
+            </button>
+            <button
+              onClick={() => setViewMode('all')}
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                viewMode === 'all'
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              View All
+            </button>
+          </div>
         </div>
 
-        {/* Section 3: Active Workflow Pipeline Steps & Controls */}
-        <WorkflowInspector
-          workflow={selectedWorkflow}
-          onRunWorkflow={handleRunWorkflow}
-          onSimulateFailure={handleSimulateFailure}
-          onAutoHeal={() => handleAutoHeal()}
-          onOpenDiagnosis={() => setIsDiagnosisOpen(true)}
-          isHealing={isHealing}
-          isRunning={isRunning}
-        />
+        {/* Section 2: Embed HealFlow AI in Your Software (Code Repair Studio) */}
+        {(viewMode === 'code_studio' || viewMode === 'all') && (
+          <CodeRepairStudio onShowToast={showToast} />
+        )}
 
-        {/* Section 4: Live Execution Logs Inspector */}
-        <div ref={logsRef}>
-          <LogViewer
-            logs={selectedWorkflow?.last_run?.logs || []}
-            runId={selectedWorkflow?.last_run?.run_id}
-            workflowName={selectedWorkflow?.name}
-          />
-        </div>
+        {/* Section 3: Enterprise Workflow Pipelines & Feedback Loop */}
+        {(viewMode === 'pipelines' || viewMode === 'all') && (
+          <>
+            <div ref={pipelineRef} className="pt-2">
+              <SelfHealingLoop
+                workflow={selectedWorkflow}
+                activeIncident={activeIncident}
+                latestDiagnosis={latestDiagnosis}
+                isHealing={isHealing}
+                isSimulating={isSimulating}
+                onAutoHeal={() => handleAutoHeal()}
+                onSimulateFailure={handleSimulateFailure}
+                onResetWorkflow={handleResetWorkflow}
+                onOpenDiagnosis={() => setIsDiagnosisOpen(true)}
+              />
+            </div>
 
-        {/* Section 5: Incident & Recovery Audit History */}
-        <div ref={incidentsRef}>
-          <IncidentHistory incidents={incidents} />
-        </div>
+            <WorkflowInspector
+              workflow={selectedWorkflow}
+              onRunWorkflow={handleRunWorkflow}
+              onSimulateFailure={handleSimulateFailure}
+              onAutoHeal={() => handleAutoHeal()}
+              onOpenDiagnosis={() => setIsDiagnosisOpen(true)}
+              isHealing={isHealing}
+              isRunning={isRunning}
+            />
+
+            <div ref={logsRef}>
+              <LogViewer
+                logs={selectedWorkflow?.last_run?.logs || []}
+                runId={selectedWorkflow?.last_run?.run_id}
+                workflowName={selectedWorkflow?.name}
+              />
+            </div>
+
+            <div ref={incidentsRef}>
+              <IncidentHistory incidents={incidents} />
+            </div>
+          </>
+        )}
       </main>
 
       {/* Footer */}
